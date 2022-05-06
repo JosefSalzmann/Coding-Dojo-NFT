@@ -14,6 +14,11 @@ contract CodingDojo is Ownable {
     // Token symbol
     string private _symbol;
 
+    mapping(uint256 => address) public tokenOwnerMap;
+    mapping(uint256 => string) public tokenUriMap;
+    mapping(address => uint256) public ownerCounter;
+    uint256 public counter;
+
     /**
      * @dev Initializes the contract by setting a `name` and a `symbol` to the token collection.
      */
@@ -26,14 +31,14 @@ contract CodingDojo is Ownable {
      * @dev See {IERC721Metadata-name}.
      */
     function name() public view returns (string memory) {
-        return "";
+        return _name;
     }
 
     /**
      * @dev See {IERC721Metadata-symbol}.
      */
     function symbol() public view returns (string memory) {
-        return "";
+        return _symbol;
     }
 
     /**
@@ -55,39 +60,17 @@ contract CodingDojo is Ownable {
      *
     */
     function safeMint(address to, string memory uri) public onlyOwner {
-
-    }
-
-    /**
-     * @dev Mints `tokenId` and transfers it to `to`.
-     *
-     * WARNING: Usage of this method is discouraged, use {_safeMint} whenever possible
-     *
-     * Requirements:
-     *
-     * - `tokenId` must not exist.
-     * - `to` cannot be the zero address.
-     *
-     * Emits a {Transfer} event.
-    */
-    function _mint(address to, uint256 tokenId) internal virtual {
-    }
-
-    /**
-     * @dev Sets `_tokenURI` as the tokenURI of `tokenId`.
-     *
-     * Requirements:
-     *
-     * - `tokenId` must exist.
-     */
-    function _setTokenURI(uint256 tokenId, string memory _tokenURI) internal virtual {
+        uint256 newTokenId = counter++;
+        tokenOwnerMap[newTokenId] = to;
+        tokenUriMap[newTokenId] = uri;
+        ownerCounter[to]++;
     }
 
     /**
      * Returns the Uniform Resource Identifier (URI) for tokenId token.
      */
     function tokenURI(uint256 tokenId) public view returns (string memory) {
-        return "";
+        return string(abi.encodePacked(_baseURI(), tokenUriMap[tokenId]));
     }
 
     /**
@@ -99,14 +82,14 @@ contract CodingDojo is Ownable {
      * and stop existing when they are burned (`_burn`).
      */
     function _exists(uint256 tokenId) internal view returns (bool) {
-        return true;
+        return tokenOwnerMap[tokenId]==address(0);
     }
 
     /**
      * @dev See {IERC721Enumerable-totalSupply}.
      */
     function totalSupply() public view returns (uint256) {
-        return 0;
+        return counter;
     }
 
     /**
@@ -114,14 +97,14 @@ contract CodingDojo is Ownable {
      * Requirements: tokenId must exist.
     */
     function ownerOf(uint256 tokenId) external view returns (address) {
-        return address(0);
+        return tokenOwnerMap[tokenId];
     }
 
     /**
      * Returns the owner of the tokenId token.
     */
-    function balanceOf(address owner) external view returns (uint256) {
-        return 0;
+    function balanceOf(address owner) external view returns (uint256) {        
+        return ownerCounter[owner];
     }
 
 }
